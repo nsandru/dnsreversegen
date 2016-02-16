@@ -16,7 +16,7 @@
 #
 
 use strict;
-my $VERSION='dnsreversegen-20160215';
+my $VERSION='dnsreversegen-20160216';
 
 # Regular expressions
 my $RE_ORIGIN = qr/^\$ORIGIN\s+\S+/;
@@ -51,11 +51,9 @@ while (<>) {
 		$revzonefile = $oldzonefile;
 	    }
 	    if ($domain eq "") {
-	        # printf STDOUT "\$GENERATE\t\%s\t%s.%s.%s.\$\t%s\tIN PTR\t%s\n", $range, $splitip[0], $splitip[1], $splitip[2], $recttl, $host;
-	        printf ZONEFILE "\$GENERATE\t\%s\t%s.%s.%s.\$\t%s\tIN PTR\t%s\n", $range, $splitip[0], $splitip[1], $splitip[2], $recttl, $host;
+	        printf ZONEFILE "\$GENERATE\t\%s\t\$.%s.%s.%s.in-addr.arpa.\t%s\tIN PTR\t%s\n", $range, $splitip[2], $splitip[1], $splitip[0], $recttl, $host;
 	    } else {
-	        # printf STDOUT "\$GENERATE\t\%s\t%s.%s.%s.\$\t%s\tIN PTR\t%s.%s\n", $range, $splitip[0], $splitip[1], $splitip[2], $recttl, $host, $domain;
-	        printf ZONEFILE "\$GENERATE\t\%s\t%s.%s.%s.\$\t%s\tIN PTR\t%s.%s\n", $range, $splitip[0], $splitip[1], $splitip[2], $recttl, $host, $domain;
+	        printf ZONEFILE "\$GENERATE\t\%s\t\$.%s.%s.%s.in-addr.arpa.\t%s\tIN PTR\t%s.%s\n", $range, $splitip[2], $splitip[1], $splitip[0], $recttl, $host, $domain;
 	    }
 	} elsif (/$RE_A/) {
 	    my @inputline = split(/\s+/, $_);
@@ -74,11 +72,9 @@ while (<>) {
 		$revzonefile = $oldzonefile;
 	    }
 	    if ($domain eq "") {
-	        # printf STDOUT "%s\t%s\tIN PTR\t%s\n", $ipaddr, $recttl, $host;
-	        printf ZONEFILE "%s\t%s\tIN PTR\t%s\n", $ipaddr, $recttl, $host;
+	        printf ZONEFILE "%s.%s.%s.%s.in-addr.arpa.\t%s\tIN PTR\t%s\n", $splitip[3], $splitip[2], $splitip[1], $splitip[0], $recttl, $host;
 	    } else {
-	        # printf STDOUT "%s\t%s\tIN PTR\t%s.%s\n", $ipaddr, $recttl, $host, $domain;
-	        printf ZONEFILE "%s\t%s\tIN PTR\t%s.%s\n", $ipaddr, $recttl, $host, $domain;
+	        printf ZONEFILE "%s.%s.%s.%s.in-addr.arpa.\t%s\tIN PTR\t%s.%s\n", $splitip[3], $splitip[2], $splitip[1], $splitip[0], $recttl, $host, $domain;
 	    }
 	} elsif (/$RE_ORIGIN/) {
             my @inputline = split(/\s+/, $_);
