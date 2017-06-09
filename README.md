@@ -10,3 +10,5 @@ dnsreversegen.sh reads the forward DNS zone either from a file or from standard 
 Install the two files - dnsreversegen.sh and dnsreversegen.pl - in /usr/local/bin or another directory in $PATH.
 
 dnsreversegen.sh uses the SOA records of existing reverse zones to generate the new zone files. If the zone does not exist the utility creates a SOA record with some default values which will have to be updated when the zone file is installed on the name server. It is recommended that a stub reverse zone be created with the desired SOA record values befire running the utility and with the NS records for the zone - dnsreversegen does not generate them.
+
+The reverse zone files are created in /tmp/dnsreversegen. Each run of the dnsreversegen.sh script clears the content of /tmp/dnsreversegen.
