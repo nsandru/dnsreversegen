@@ -45,6 +45,10 @@ for REVZONE in `ls *.inc | sed 's/\.inc//'` ; do
   REVFILETMP=`basename $REVFILE`
   test "$REVFILE" || continue
   SOAREC="`dig +short soa $REVZONE`"
+  # Non-existant zone, put some default values in the SOA record
+  test x"$SOAREC" = x && {
+    SOAREC=`echo 'localhost. postmaster.localhost. 0 7200 1800 86400 300'`
+  }
   SOASERIAL=`echo $SOAREC | awk '{print $3}'`
   test $SOASERIAL -gt `date -d now '+%s'` && {
     SOANEXT=`date -d now '+%Y%m%d00'`
