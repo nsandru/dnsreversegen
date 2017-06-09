@@ -14,7 +14,7 @@
 #     3.2.1.in-addr.arpa.txt
 #   Where 3.2.1 are the first 3 bytes of the IP address in reverse order.
 #
-# dnsreversgen-20170607
+# dnsreversgen-20170609
 #
 
 export PATH=/bin:/usr/bin:$HOME/bin
