@@ -20,7 +20,7 @@
 export PATH=/bin:/usr/bin:$HOME/bin
 
 test -d /tmp/dnsreversegen/.tmp && rm -rf /tmp/dnsreversegen/.tmp
-mkdir /tmp/dnsreversegen/.tmp
+mkdir -p /tmp/dnsreversegen/.tmp
 cd /tmp/dnsreversegen/.tmp
 
 # Generate the include files
