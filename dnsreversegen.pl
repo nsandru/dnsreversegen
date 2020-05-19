@@ -4,7 +4,7 @@
 #
 # Generate reverse DNS zone includes from a forward DNS zone
 #
-#   Arguments (optional):
+#   Arguments:
 #     - a domain name
 #     - a forward zone file - either file path or stdin
 #
@@ -16,7 +16,7 @@
 #
 
 use strict;
-my $VERSION='dnsreversegen-20160216';
+my $VERSION='dnsreversegen-20200518';
 
 # Regular expressions
 my $RE_ORIGIN = qr/^\$ORIGIN\s+\S+/;
@@ -37,6 +37,9 @@ while (<>) {
             my @inputline = split(/\s+/, $_);
 	    my $range = $inputline[1];
 	    my $host = $inputline[2];
+	    if ($host eq "@") {
+		next;
+	    }
 	    my $recttl = $inputline[3];
 	    if ($recttl !~ /^[0-9]/) {
 		$recttl = $ttl;
@@ -58,6 +61,9 @@ while (<>) {
 	} elsif (/$RE_A/) {
 	    my @inputline = split(/\s+/, $_);
 	    my $host = $inputline[0];
+	    if ($host eq "@") {
+		next;
+	    }
 	    my $recttl = $inputline[1];
 	    if ($recttl !~ /^[0-9]/) {
 		$recttl = $ttl;

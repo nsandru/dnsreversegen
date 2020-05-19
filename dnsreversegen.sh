@@ -4,7 +4,7 @@
 #
 # Generate reverse DNS zone from a forward DNS zone
 #
-#   Arguments (optional):
+#   Arguments:
 #     - a domain name
 #     - a forward zone file - either file path or stdin
 #
@@ -14,23 +14,23 @@
 #     3.2.1.in-addr.arpa.txt
 #   Where 3.2.1 are the first 3 bytes of the IP address in reverse order.
 #
-# dnsreversgen-20170609
+# dnsreversgen-20200518
 #
 
 export PATH=/bin:/usr/bin:$HOME/bin
 
+test -z "$2" && {
+  echo Usage: $0 DOMAIN ZONEFILE
+  exit 1
+}
 test -d /tmp/dnsreversegen && rm -rf /tmp/dnsreversegen
 mkdir -p /tmp/dnsreversegen/.tmp
 cd /tmp/dnsreversegen/.tmp
 
 # Generate the include files
-while [ "$1" ] ; do
-  DOMAIN=$1
-  ZONEFILE=$2
-  shift
-  shift
-  dnsreversegen.pl $DOMAIN $ZONEFILE
-done
+DOMAIN=$1
+ZONEFILE=$2
+dnsreversegen.pl $DOMAIN $ZONEFILE
 
 # Merge the include files
 for TEXTFILE in *.txt ; do
@@ -45,12 +45,16 @@ for REVZONE in `ls *.inc | sed 's/\.inc//'` ; do
   REVFILETMP=`basename $REVFILE`
   test "$REVFILE" || continue
   SOAREC="`dig +short soa $REVZONE`"
-  # Non-existant zone, put some default values in the SOA record
-  test x"$SOAREC" = x && {
-    SOAREC=`echo 'localhost. postmaster.localhost. 0 7200 1800 86400 300'`
+  # Non-existant zone, use the direct zone SOA
+  test -z "$SOAREC" && {
+    SOAREC=`dig +short soa $DOMAIN`
   }
   test -f $REVFILE || {
     echo $SOAREC > $REVFILE
+  }
+  dig +short ns $REVZONE | awk '{printf "\tIN NS\t%s\n",$1}' > $REVFILE.ns
+  test -s $REVFILE.ns || {
+    dig +short ns $DOMAIN | awk '{printf "\tIN NS\t%s\n",$1}' > $REVFILE.ns
   }
   SOASERIAL=`echo $SOAREC | awk '{print $3}'`
   test $SOASERIAL -gt `date -d now '+%s'` && {
@@ -62,7 +66,7 @@ for REVZONE in `ls *.inc | sed 's/\.inc//'` ; do
     SOANEXT=`expr $SOASERIAL + 1`
   }
   (echo $SOAREC | awk '{printf "@\tIN SOA\t%s %s (%s %s %s %s %s)\n", $1,$2,$3,$4,$5,$6,$7}'
-  dig +short ns $REVZONE | awk '{printf "\tIN NS\t%s\n",$1}'
+  cat $REVFILE.ns
   cat $REVZONE.inc
 ) > $REVFILETMP
   OLDSUM=`md5sum $REVFILE | awk '{print $1}'`
@@ -71,7 +75,7 @@ for REVZONE in `ls *.inc | sed 's/\.inc//'` ; do
   NEWSERIAL=$SOANEXT
   test $NEWSERIAL -le $SOANEXT && {
     (echo $SOAREC | awk '{printf "@\tIN SOA\t%s %s ('"$NEWSERIAL"' %s %s %s %s)\n", $1,$2,$4,$5,$6,$7}'
-    dig +short ns $REVZONE | awk '{printf "\tIN NS\t%s\n",$1}'
+    cat $REVFILE.ns
     cat $REVZONE.inc
 ) > $REVFILE
   }
